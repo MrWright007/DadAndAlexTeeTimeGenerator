@@ -5,8 +5,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
@@ -19,17 +17,17 @@ public class SeleniumApp {
     public static void main(String[] args) throws InterruptedException, ParseException {
 
 
-        //This script will always run on Sunday morning at 12:01am
+        //This script will always run on Tuesday morning at 12:01am
 
         final String dayOfWeekToPlay = "Tuesday";
         final String timeOfDay = "Morning";
         final String preferredTime = "7:30:00";
-        final String username = "alexwright923@gmail.com";
-        final String password = "Hazard30";
+        final String username = "gwright52@comcast.net";
+        final String password = "bradshaw1";
+        final Boolean nineHoles = true;
 
         //Setting system properties of ChromeDriver
         System.setProperty("webdriver.chrome.driver", "/Users/alexwright/bin/chromedriver/chromedriver");
-
 
 
         //Creating an object of ChromeDriver
@@ -55,16 +53,53 @@ public class SeleniumApp {
             dropdown.selectByVisibleText("Blue");
 
             // Click Select
-            WebElement publicButton = driver.findElement(By.xpath("/html/body/div[2]/div/div[2]/div/div/button[1]"));
-            publicButton.click();
+            WebElement playersClubButton = driver.findElement(By.xpath("/html/body/div[2]/div/div[2]/div/div/button[2]"));
+            playersClubButton.click();
             Thread.sleep(1000);
 
+            //TODO Select Login Button
+            WebElement logInButton = driver.findElement(By.xpath("/html/body/div[2]/div/div[2]/div/div/div/p[1]/button"));
+            logInButton.click();
+            Thread.sleep(1000);
+
+
+            /*
             //Sometimes webpage freezes up, Try a double-click.
             try {
-                publicButton.click();
+                playersClubButton.click();
             } catch (Exception e) {
                 System.out.println("No need for double-click");
             }
+             */
+
+            //LOG IN AS GREG WRIGHT
+
+            //Enter Username
+            WebElement emailEntry = driver.findElement(By.id("login_email"));
+            emailEntry.click();
+            emailEntry.sendKeys(username);
+            //Enter Password
+            WebElement passwordEntry = driver.findElement(By.id("login_password"));
+            passwordEntry.click();
+            passwordEntry.sendKeys(password);
+            passwordEntry.sendKeys(Keys.RETURN);
+
+            // WAIT
+            Thread.sleep(3000);
+
+            //Select RESERVE A TIME NOW
+            //TODO Select 'Reserve a Time Now' Button
+            WebElement reserveATimeNowButton = driver.findElement(By.xpath("/html/body/div[2]/div/div[2]/div/div/section/div[2]/div/div/ul/li/a"));
+            reserveATimeNowButton.click();
+            Thread.sleep(1000);
+
+            //Select 9 Holes if Nine Holes Selected
+            if (nineHoles) {
+                WebElement nineHolesButton = driver.findElement(By.xpath("/html/body/div[2]/div/div[2]/div[1]/div/div[4]/div[2]/div/a[1]"));
+                nineHolesButton.click();
+            }
+
+
 
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM-dd-yyyy");
             LocalDateTime now = LocalDateTime.now();
@@ -106,20 +141,19 @@ public class SeleniumApp {
             dateField.sendKeys(Keys.RETURN);
             Thread.sleep(4000);
 
-            //Get the List of resulting times and select the first one
+            //Get the List of resulting times
             WebElement times = driver.findElement(By.id("times"));
             List<WebElement> timeList = times.findElements(By.className("start"));
             Map<WebElement, Double> map = new HashMap<WebElement, Double>();
 
-            //Test Treemap
+            //Set Up Selection Variables
             WebElement teeTimeSelection = null;
             String teeTimeSelectionString = null;
             long selectedDiffTime = 365000;
 
-
+            //Evaluate each time and determine how close it is to our desired tee time DATETIME
             System.out.println("Beginning the loop process...");
             for (int i = 0; i < timeList.size(); i++) {
-                //TODO add each key and element into a Map
                 System.out.println("LOOP COUNT: " + i + 1);
                 WebElement thisElement = timeList.get(i);
                 String teeTimeString = thisElement.getText().trim();
@@ -132,12 +166,11 @@ public class SeleniumApp {
                 System.out.println("Desired Date Time is: " + desiredDateTime + " and Tee Time is: " + teeTime);
 
 
-                //TODO Figure out this calculation
                 long diff = Math.abs(ChronoUnit.MINUTES.between(desiredDateTime, teeTime));
 
                 System.out.println("Tee Time: " + teeTimeString + " and Difference in Minutes is: " + diff + " minutes");
 
-                //TODO IF Statement - If Selected Diff Time is null OR isGreaterThan CurrentDiffTime then update TeeTimeSelection AND Selected Diff Time
+                //If Selected Diff Time is null OR isGreaterThan CurrentDiffTime then update TeeTimeSelection AND Selected Diff Time
 
                 if (diff <= selectedDiffTime) {
                     teeTimeSelection = thisElement;
@@ -208,30 +241,21 @@ public class SeleniumApp {
 
             bookTimeButton.click();
 
+            System.out.println("Made it to the Guest Selection Screen");
+
 
             //TODO ONLY FOR PUBLIC BOOKING Enter Username and Password then hit enter OR Log in
 
-            //Enter Username
 
-            WebElement emailEntry = driver.findElement(By.id("login_email"));
-            emailEntry.click();
-            emailEntry.sendKeys(username);
-            //Enter Password
-            WebElement passwordEntry = driver.findElement(By.id("login_password"));
-            passwordEntry.click();
-            passwordEntry.sendKeys(password);
-            passwordEntry.sendKeys(Keys.RETURN);
-
-            // WAIT
-            Thread.sleep(3000);
 
             //Click GUEST button for Player 2 (This could be updated to select a Player 2 if they are already a Member also
 
-
-            List<WebElement> modalButtons = modalElements.findElements(By.tagName("button"));
+            Thread.sleep(3000);
+            WebElement modalElements2 = driver.findElement(By.id("modal"));
+            List<WebElement> modalButtons2 = modalElements2.findElements(By.tagName("button"));
             WebElement guestButtonSelection = null;
             WebElement continueButtonSelection = null;
-            for (WebElement w : modalButtons) {
+            for (WebElement w : modalButtons2) {
                 System.out.println(w + w.getText() + "");
                 String wText = w.getText() + "";
                 if (wText.equals("Guest")) {
@@ -253,10 +277,10 @@ public class SeleniumApp {
 
             //TODO IF you need to select a credit card, this would be the time to do it
 
-            WebElement modalElements2 = driver.findElement(By.id("select-credit-card"));
-            List<WebElement> modalButtons2 = modalElements2.findElements(By.tagName("button"));
+            WebElement modalElements3 = driver.findElement(By.id("select-credit-card"));
+            List<WebElement> modalButtons3 = modalElements3.findElements(By.tagName("button"));
             WebElement finalBookTimeButton = null;
-            for (WebElement w : modalButtons2) {
+            for (WebElement w : modalButtons3) {
                 System.out.println(w + w.getText() + "");
                 String wText = w.getText() + "";
                 if (wText.equals("Book Time")) {
@@ -274,6 +298,7 @@ public class SeleniumApp {
             driver.quit();
         } catch (Exception e) {
             System.out.println("EXCEPTION: " + e);
+            Thread.sleep(3000);
             driver.quit();
         }
     }
